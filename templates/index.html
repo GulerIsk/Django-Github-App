@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://bootswatch.com/4/litera/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="images/Octocat.ico" type="image/x-icon" />
+    <title>Github User Finder and Information Extracter</title>    
+</head>
+<body class="bg-secondary">
+    <nav class="navbar navbar-dark mb-3" style="background-color:black; color:grey;">            
+            <a href="/" class = "navbar-brand text-secondary" style="font-family: Times New Roman;font-weight: bold; "><i class="fa fa-github"> </i> Github Finder</a>
+    </nav>
+    <div class="container searchContainer mb-3">
+      <div class="search card card-body bg-light ">
+      <h3 class="center">Search Github User</h3>
+      <p class="lead">
+          Enter Github username and access the Github user's information!
+      </p>
+        <form action="/" method="post" style ="margin-top: 50px;">
+            <input type="text" name="githubname" class = "form-control" autocomplete="off" placeholder="Github username">            
+            {% csrf_token %}
+            <br>
+            <button type = "submit" class ="btn btn-primary"> Search</button>
+            {% comment %} <a href="save" target="_blank" class="btn btn-danger"><i class="fa fa-database" aria-hidden="true"> </i> All Users in Database</a> {% endcomment %}
+        </form> 
+      </div> 
+        <br>                           
+        {% if profile %}
+        <div id="profile">
+            <div class="card card-body bg-light mb-3">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <img class="img-fluid mb-2" src="{{profile.avatar_url}}">   
+                        <h5 class="mb-3" style="font:bold 25px/30px Times New Roman, serif">{% if profile.name != "" %}  &nbsp; {{profile.name}}{% endif %} </h3>                        
+                        <a href="{{profile.html_url}}" target="_blank" class="btn btn-success btn-block mb-4"><i class="fa fa-user" aria-hidden="true"></i><strong> Go to Profile </strong><i class="fa fa-user" aria-hidden="true"></i></a>                      
+                      </div>
+                      <div class="col-md-9">
+                        <span class="badge badge-primary"><i class="fa fa-inbox" aria-hidden="true"></i> <b>Public Repo </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.public_repos}} </span>
+                        <span class="badge badge-warning">Public Gists <i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.public_gists}} </span>
+                        <span class="badge badge-danger"><i class="fa fa-users" aria-hidden="true"></i> <b>Followers </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.followers}} </span>
+                        <span class="badge badge-danger"><i class="fa fa-users" aria-hidden="true"></i> <b>Following</b> <i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.following}}</span>
+                        <br><br>                  
+                        <ul class="list-group">                          
+                          {% if profile.company != null%}<li class="list-group-item"><i class="fa fa-building-o" aria-hidden="true"></i>&nbsp;<b>Company </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.company}}</li>{% endif %}
+                          {% if profile.location != null%}<li class="list-group-item"><i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp;<b>Location </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.location}}</li>{% endif %}
+                          {% if profile.email != null%}<li class="list-group-item"><i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;<b>E-mail </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.email}} </li>{% endif %}
+                          {% if profile.bio != null%}<li class="list-group-item"><b>Bio </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.bio}}</li>{% endif %}
+                          {% if profile.blog != ""%}<li class="list-group-item"><i class="fa fa-link" aria-hidden="true"></i>&nbsp;<b>Website/Blog </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.blog}}</li>{% endif %}
+                          <li class="list-group-item"><i class="fa fa-rocket" aria-hidden="true"></i>&nbsp;<b>Joined Github </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.created_at}}</li>
+                          <li class="list-group-item"><b>Last Updated Date </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{profile.updated_at}}</li>
+                        </ul>
+                      </div>
+                    </div>
+            </div>
+                <div class="card card-body bg-light mb-3">
+                  <h3 class="page-heading mb-3">Public Repositories</h3> 
+                  <div class ="alert alert-info">{% if profile.public_repos == 0 %} <i class="fa fa-info-circle" aria-hidden="true"></i> There is no public repository to {{profile.name}} {% else %} {{profile.name}} has {{profile.public_repos}} public repository. {% endif%} </div>
+                    <div id="repos" style ="margin-bottom: 100px;">
+                      {% for repo in repos %}
+                      <div class="card card-body mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                              <span>{{repo.name}}</span> 
+                              
+                              <div class="col-md-10">
+                              <a href="{{repo.html_url}}" target = "_blank" class = "btn btn-success">Go to Repo</a>
+                            </div>
+                            </div>
+                          <div class="col-md-6">
+                            <span class="badge badge-warning"><i class="fa fa-star-o" aria-hidden="true"></i><b> Star </b><i class="fa fa-arrow-right" aria-hidden="true"></i> {{repo.stargazers_count}} </span>
+                            <span class="badge badge-secondary"><i class="fa fa-code-fork" aria-hidden="true"></i> <b>Forks</b> <i class="fa fa-arrow-right" aria-hidden="true"></i> {{repo.forks}}</span>
+                            <span class="badge badge-info "><b>Languages</b> <i class="fa fa-arrow-right" aria-hidden="true"></i> {{repo.language}}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {% endfor %}   
+                    </div>  
+                    </div>           
+        </div>
+        {% else %}
+
+             {% if error %}
+            <div class ="alert alert-danger">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <strong>{{error}}!</strong>
+            </div>
+            <div class ="alert alert-info">
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                <strong>CHECK USERNAME AND SEARCH AGAIN...</strong>
+            </div>
+            
+            {% endif %} 
+        {% endif %}     
+     
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<footer class="text-center text-secondary" style=" margin-top: 300px; background-color: black;">
+  <div class="text-center text-secondary p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2021 Copyright:
+    <a class="text-secondary" href="#">GULER ISKENDEROGLU</a>
+  </div>
+</footer>
+
+</body>
+</html>
